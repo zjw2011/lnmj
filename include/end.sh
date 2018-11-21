@@ -79,7 +79,7 @@ Add_LNMJ_Startup()
 Clean_Src_Dir()
 {
     echo "Clean src directory..."
-   	rm -rf ${cur_dir}/src/${JDK_Ver}
+   	RM_Safe ${cur_dir}/src/${JDK_Ver}
     # if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
     #     rm -rf ${cur_dir}/src/${Mysql_Ver}
     # elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then

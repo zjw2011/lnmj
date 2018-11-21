@@ -264,6 +264,30 @@ Tarj_Cd()
     cd ${DirName}
 }
 
+Tar_Cd_Safe()
+{
+    local FileName=$1
+    local DirName=$2
+    cd ${cur_dir}/src
+    [[ -d "${DirName}" ]] && RM_Safe ${DirName}
+    echo "Uncompress ${FileName}..."
+    tar zxf ${FileName}
+    echo "cd ${DirName}..."
+    cd ${DirName}
+}
+
+Tarj_Cd_Safe()
+{
+    local FileName=$1
+    local DirName=$2
+    cd ${cur_dir}/src
+    [[ -d "${DirName}" ]] && RM_Safe ${DirName}
+    echo "Uncompress ${FileName}..."
+    tar jxf ${FileName}
+    echo "cd ${DirName}..."
+    cd ${DirName}
+}
+
 Check_Stack()
 {
 	Get_Stack="lnmj"

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 Safe_Remove_Files="/usr/app \
-${cur_dir}/src \
 /etc/profile.d/java.sh \
+${cur_dir}/src/${JDK_Ver} \
 "
 
 RM_Safe() {
