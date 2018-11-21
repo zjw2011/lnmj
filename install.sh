@@ -21,6 +21,7 @@ LNMJ_Ver='0.0.1'
 . lnmj.conf
 . include/main.sh
 . include/init.sh
+. include/safe.sh
 . include/jdk.sh
 . include/end.sh
 

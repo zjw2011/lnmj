@@ -308,7 +308,7 @@ Check_LNMJConf()
         Echo_Red "lnmj.conf was not exsit!"
         exit 1
     fi
-    
+
     if [[ "${App_Home}" = "" ]]; then
         Echo_Red "Can't get values from lnmj.conf!"
         exit 1
@@ -354,4 +354,5 @@ Echo_Blue()
 {
   echo $(Color_Text "$1" "34")
 }
+
 

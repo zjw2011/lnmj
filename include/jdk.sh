@@ -42,7 +42,7 @@ Install_JDK()
     \cp -rf * ${JAVA_HOME}
 
 	cd ${cur_dir}/src
-	
+
     if [ "${Enable_JDK_Policy}" = 'y' ]; then
     	echo "Installing Policy for JDK..."
     	Install_JDK_Policy
@@ -53,7 +53,7 @@ Install_JDK()
 
     # ln -sf /usr/local/java/bin/java /usr/bin/java
 
-    rm -rf /etc/profile.d/java.sh
+    RM_Safe /etc/profile.d/java.sh
 	cat >/etc/profile.d/java.sh<<EOF
 export JAVA_HOME=${JAVA_HOME}
 export CLASSPATH=.:\$JAVA_HOME/jre/lib/rt.jar:\$JAVA_HOME/lib/dt.jar:\$JAVA_HOME/lib/tools.jar
