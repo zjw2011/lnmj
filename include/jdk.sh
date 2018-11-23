@@ -1,16 +1,27 @@
 #!/bin/bash
 
+# echo "nginx-1.6.7_qq" | grep -Ei 'nginx-[0-1].[5-8].[0-9]' | cut -d'.' -f1
+# echo "jdk1.8.0_191" | grep -Ei '^jdk1\.8' | cut -d'.' -f1
+# echo "jdk1.8.0_191" | grep -Ei '^jdk1' | cut -d'_' -f2
 Get_TarName() {
-	if [ "${JDK_Ver}" = "jdk1.8.0_191" ]; then
-		JDK_Tar_Name="jdk-8u191-linux"
-		JAVA_Version="8"
-	elif [[ "${JDK_Ver}" = "jdk1.8.0_192" ]]; then
-		JDK_Tar_Name="jdk-8u192-linux"
+	if echo ${JDK_Ver} | grep -Ei '^jdk1\.8.[0-9]*_[0-9]*$'; then
 		JAVA_Version="8"
 	else
 		Echo_Red "[${JDK_Ver}] is not support!"
         exit 1
 	fi
+	local JAVA_Sequence=`echo ${JDK_Ver} | cut -d'_' -f2`
+	JDK_Tar_Name="jdk-${JAVA_Version}u${JAVA_Sequence}-linux"
+	# if [ "${JDK_Ver}" = "jdk1.8.0_191" ]; then
+	# 	JDK_Tar_Name="jdk-8u191-linux"
+	# 	JAVA_Version="8"
+	# elif [[ "${JDK_Ver}" = "jdk1.8.0_192" ]]; then
+	# 	JDK_Tar_Name="jdk-8u192-linux"
+	# 	JAVA_Version="8"
+	# else
+	# 	Echo_Red "[${JDK_Ver}] is not support!"
+ #        exit 1
+	# fi
 }
 
 Install_JDK_Policy() {
@@ -48,10 +59,6 @@ Install_JDK()
     	Install_JDK_Policy
 	fi
     
-    # 
-    # rm -rf ${JDK_Ver}
-
-    # ln -sf /usr/local/java/bin/java /usr/bin/java
 
     RM_Safe /etc/profile.d/java.sh
 	cat >/etc/profile.d/java.sh<<EOF
@@ -59,4 +66,5 @@ export JAVA_HOME=${JAVA_HOME}
 export CLASSPATH=.:\$JAVA_HOME/jre/lib/rt.jar:\$JAVA_HOME/lib/dt.jar:\$JAVA_HOME/lib/tools.jar
 export PATH=\$PATH:\$JAVA_HOME/bin:\$JAVA_HOME/jre/bin
 EOF
+	source /etc/profile.d/java.sh
 }

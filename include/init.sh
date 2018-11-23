@@ -36,12 +36,12 @@ CentOS_RemoveAMP()
     # rpm -qa|grep php
     # rpm -e php-mysql php-cli php-gd php-common php --nodeps
 
-    # Remove_Error_Libcurl
+    Remove_Error_Libcurl
 
     # yum -y remove httpd*
     # yum -y remove mysql-server mysql mysql-libs
     # yum -y remove php*
-    # yum clean all
+    yum clean all
 }
 
 Deb_RemoveAMP()
@@ -207,5 +207,342 @@ Check_Download()
 {
     Echo_Blue "[+] Downloading files..."
     cd ${cur_dir}/src
+}
+
+Make_Install()
+{
+    make -j `grep 'processor' /proc/cpuinfo | wc -l`
+    if [ $? -ne 0 ]; then
+        make
+    fi
+    make install
+}
+
+Install_Autoconf()
+{
+    Echo_Blue "[+] Installing ${Autoconf_Ver}"
+    cd ${cur_dir}/src
+    Download_Files ${Download_Mirror}/lib/autoconf/${Autoconf_Ver}.tar.gz ${Autoconf_Ver}.tar.gz
+    Tar_Cd ${Autoconf_Ver}.tar.gz ${Autoconf_Ver}
+    ./configure --prefix=/usr/local/autoconf-2.13
+    Make_Install
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Autoconf_Ver}
+}
+
+Install_Libiconv()
+{
+    Echo_Blue "[+] Installing ${Libiconv_Ver}"
+    Tar_Cd ${Libiconv_Ver}.tar.gz ${Libiconv_Ver}
+    ./configure --enable-static
+    Make_Install
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Libiconv_Ver}
+}
+
+Install_Libmcrypt()
+{
+    Echo_Blue "[+] Installing ${LibMcrypt_Ver}"
+    Tar_Cd ${LibMcrypt_Ver}.tar.gz ${LibMcrypt_Ver}
+    ./configure
+    Make_Install
+    /sbin/ldconfig
+    cd libltdl/
+    ./configure --enable-ltdl-install
+    Make_Install
+    ln -sf /usr/local/lib/libmcrypt.la /usr/lib/libmcrypt.la
+    ln -sf /usr/local/lib/libmcrypt.so /usr/lib/libmcrypt.so
+    ln -sf /usr/local/lib/libmcrypt.so.4 /usr/lib/libmcrypt.so.4
+    ln -sf /usr/local/lib/libmcrypt.so.4.4.8 /usr/lib/libmcrypt.so.4.4.8
+    ldconfig
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${LibMcrypt_Ver}
+}
+
+Install_Mcrypt()
+{
+    Echo_Blue "[+] Installing ${Mcypt_Ver}"
+    Tar_Cd ${Mcypt_Ver}.tar.gz ${Mcypt_Ver}
+    ./configure
+    Make_Install
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Mcypt_Ver}
+}
+
+Install_Mhash()
+{
+    Echo_Blue "[+] Installing ${Mhash_Ver}"
+    Tarj_Cd ${Mhash_Ver}.tar.bz2 ${Mhash_Ver}
+    ./configure
+    Make_Install
+    ln -sf /usr/local/lib/libmhash.a /usr/lib/libmhash.a
+    ln -sf /usr/local/lib/libmhash.la /usr/lib/libmhash.la
+    ln -sf /usr/local/lib/libmhash.so /usr/lib/libmhash.so
+    ln -sf /usr/local/lib/libmhash.so.2 /usr/lib/libmhash.so.2
+    ln -sf /usr/local/lib/libmhash.so.2.0.1 /usr/lib/libmhash.so.2.0.1
+    ldconfig
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Mhash_Ver}
+}
+
+Install_Freetype()
+{
+    if [[ "${DISTRO}" = "Ubuntu" && "${Ubuntu_Version}" = "18.04" ]] || grep -Eqi "Mint 19" /etc/issue || grep -Eqi "Deepin GNU/Linux 15.7" /etc/issue; then
+        Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}.tar.bz2
+        Echo_Blue "[+] Installing ${Freetype_New_Ver}"
+        Tarj_Cd ${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}
+    else
+        Download_Files ${Download_Mirror}/lib/freetype/${Freetype_Ver}.tar.bz2 ${Freetype_Ver}.tar.bz2
+        Echo_Blue "[+] Installing ${Freetype_Ver}"
+        Tarj_Cd ${Freetype_Ver}.tar.bz2 ${Freetype_Ver}
+    fi
+    ./configure --prefix=/usr/local/freetype
+    Make_Install
+
+    [[ -d /usr/lib/pkgconfig ]] && \cp /usr/local/freetype/lib/pkgconfig/freetype2.pc /usr/lib/pkgconfig/
+    cat > /etc/ld.so.conf.d/freetype.conf<<EOF
+/usr/local/freetype/lib
+EOF
+    ldconfig
+    ln -sf /usr/local/freetype/include/freetype2/* /usr/include/
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Freetype_Ver}
+}
+
+Install_Curl()
+{
+    if [[ ! -s /usr/local/curl/bin/curl || ! -s /usr/local/curl/lib/libcurl.so || ! -s /usr/local/curl/include/curl/curl.h ]]; then
+        Echo_Blue "[+] Installing ${Curl_Ver}"
+        cd ${cur_dir}/src
+        Download_Files ${Download_Mirror}/lib/curl/${Curl_Ver}.tar.bz2 ${Curl_Ver}.tar.bz2
+        Tarj_Cd ${Curl_Ver}.tar.bz2 ${Curl_Ver}
+        ./configure --prefix=/usr/local/curl --enable-ares --without-nss --with-ssl
+        Make_Install
+        cd ${cur_dir}/src/
+        rm -rf ${cur_dir}/src/${Curl_Ver}
+    fi
+    Remove_Error_Libcurl
+}
+
+Install_Pcre()
+{
+    if [ ! -s /usr/bin/pcre-config ] || /usr/bin/pcre-config --version | grep -vEqi '^8.'; then
+        Echo_Blue "[+] Installing ${Pcre_Ver}"
+        cd ${cur_dir}/src
+        # Download_Files ${Download_Mirror}/web/pcre/${Pcre_Ver}.tar.bz2 ${Pcre_Ver}.tar.bz2
+        Tarj_Cd ${Pcre_Ver}.tar.bz2 ${Pcre_Ver}
+        ./configure
+        Make_Install
+        cd ${cur_dir}/src/
+        RM_Safe ${cur_dir}/src/${Pcre_Ver}
+    fi
+}
+
+Install_Jemalloc()
+{
+    Echo_Blue "[+] Installing ${Jemalloc_Ver}"
+    cd ${cur_dir}/src
+    Tarj_Cd ${Jemalloc_Ver}.tar.bz2 ${Jemalloc_Ver}
+    ./configure
+    Make_Install
+    ldconfig
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${Jemalloc_Ver}
+    ln -sf /usr/local/lib/libjemalloc* /usr/lib/
+}
+
+Install_TCMalloc()
+{
+    Echo_Blue "[+] Installing ${TCMalloc_Ver}"
+    if [ "${Is_64bit}" = "y" ]; then
+        Tar_Cd ${Libunwind_Ver}.tar.gz ${Libunwind_Ver}
+        CFLAGS=-fPIC ./configure
+        make CFLAGS=-fPIC
+        make CFLAGS=-fPIC install
+        rm -rf ${cur_dir}/src/${Libunwind_Ver}
+    fi
+    Tar_Cd ${TCMalloc_Ver}.tar.gz ${TCMalloc_Ver}
+    if [ "${Is_64bit}" = "y" ]; then
+        ./configure
+    else
+        ./configure --enable-frame-pointers
+    fi
+    Make_Install
+    ldconfig
+    cd ${cur_dir}/src/
+    rm -rf ${cur_dir}/src/${TCMalloc_Ver}
+    ln -sf /usr/local/lib/libtcmalloc* /usr/lib/
+}
+
+Install_Icu4c()
+{
+    if [ ! -s /usr/bin/icu-config ] || /usr/bin/icu-config --version | grep '^3.'; then
+        Echo_Blue "[+] Installing ${Libicu4c_Ver}"
+        cd ${cur_dir}/src
+        Download_Files ${Download_Mirror}/lib/icu4c/${Libicu4c_Ver}-src.tgz ${Libicu4c_Ver}-src.tgz
+        Tar_Cd ${Libicu4c_Ver}-src.tgz icu/source
+        ./configure --prefix=/usr
+        Make_Install
+        cd ${cur_dir}/src/
+        rm -rf ${cur_dir}/src/icu
+    fi
+}
+
+Install_Boost()
+{
+    Echo_Blue "[+] Installing ${Boost_Ver}"
+    if [ "$PM" = "yum" ]; then
+        yum -y install python-devel
+    elif [ "$PM" = "apt" ]; then
+        apt-get update
+        apt-get install -y python-dev
+    fi
+    cd ${cur_dir}/src
+    if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
+        Download_Files ${Download_Mirror}/lib/boost/${Boost_Ver}.tar.bz2 ${Boost_Ver}.tar.bz2
+        Tarj_Cd ${Boost_Ver}.tar.bz2 ${Boost_Ver}
+    elif [ "${DBSelect}" = "5" ] || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
+        Download_Files ${Download_Mirror}/lib/boost/${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}.tar.bz2
+        Tarj_Cd ${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}
+    fi
+    cd ${cur_dir}/src
+}
+
+Install_Openssl()
+{
+    if [ ! -s /usr/local/openssl/bin/openssl ] || /usr/local/openssl/bin/openssl version | grep -v 'OpenSSL 1.0.2'; then
+        Echo_Blue "[+] Installing ${Openssl_Ver}"
+        cd ${cur_dir}/src
+        Download_Files ${Download_Mirror}/lib/openssl/${Openssl_Ver}.tar.gz ${Openssl_Ver}.tar.gz
+        [[ -d "${Openssl_Ver}" ]] && rm -rf ${Openssl_Ver}
+        Tar_Cd ${Openssl_Ver}.tar.gz ${Openssl_Ver}
+        ./config -fPIC --prefix=/usr/local/openssl --openssldir=/usr/local/openssl
+        make depend
+        Make_Install
+        cd ${cur_dir}/src/
+        rm -rf ${cur_dir}/src/${Openssl_Ver}
+    fi
+}
+
+Install_Nghttp2()
+{
+    if [[ ! -s /usr/local/nghttp2/lib/libnghttp2.so || ! -s /usr/local/nghttp2/include/nghttp2/nghttp2.h ]]; then
+        Echo_Blue "[+] Installing ${Nghttp2_Ver}"
+        cd ${cur_dir}/src
+        Download_Files ${Download_Mirror}/lib/nghttp2/${Nghttp2_Ver}.tar.xz ${Nghttp2_Ver}.tar.xz
+        [[ -d "${Nghttp2_Ver}" ]] && rm -rf ${Nghttp2_Ver}
+        tar Jxf ${Nghttp2_Ver}.tar.xz && cd ${Nghttp2_Ver}
+        ./configure --prefix=/usr/local/nghttp2
+        Make_Install
+        cd ${cur_dir}/src/
+        rm -rf ${cur_dir}/src/${Nghttp2_Ver}
+    fi
+}
+
+CentOS_Lib_Opt()
+{
+    if [ "${Is_64bit}" = "y" ] ; then
+        ln -sf /usr/lib64/libpng.* /usr/lib/
+        ln -sf /usr/lib64/libjpeg.* /usr/lib/
+    fi
+
+    ulimit -v unlimited
+
+    if [ `grep -L "/lib"    '/etc/ld.so.conf'` ]; then
+        echo "/lib" >> /etc/ld.so.conf
+    fi
+
+    if [ `grep -L '/usr/lib'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/lib" >> /etc/ld.so.conf
+        #echo "/usr/lib/openssl/engines" >> /etc/ld.so.conf
+    fi
+
+    if [ -d "/usr/lib64" ] && [ `grep -L '/usr/lib64'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/lib64" >> /etc/ld.so.conf
+        #echo "/usr/lib64/openssl/engines" >> /etc/ld.so.conf
+    fi
+
+    if [ `grep -L '/usr/local/lib'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/local/lib" >> /etc/ld.so.conf
+    fi
+
+    ldconfig
+
+    cat >>/etc/security/limits.conf<<eof
+* soft nproc 65535
+* hard nproc 65535
+* soft nofile 65535
+* hard nofile 65535
+eof
+
+    echo "fs.file-max=65535" >> /etc/sysctl.conf
+}
+
+Deb_Lib_Opt()
+{
+    if [ "${Is_64bit}" = "y" ]; then
+        ln -sf /usr/lib/x86_64-linux-gnu/libpng* /usr/lib/
+        ln -sf /usr/lib/x86_64-linux-gnu/libjpeg* /usr/lib/
+    else
+        ln -sf /usr/lib/i386-linux-gnu/libpng* /usr/lib/
+        ln -sf /usr/lib/i386-linux-gnu/libjpeg* /usr/lib/
+        ln -sf /usr/include/i386-linux-gnu/asm /usr/include/asm
+    fi
+
+    if [ -d "/usr/lib/arm-linux-gnueabihf" ]; then
+        ln -sf /usr/lib/arm-linux-gnueabihf/libpng* /usr/lib/
+        ln -sf /usr/lib/arm-linux-gnueabihf/libjpeg* /usr/lib/
+        ln -sf /usr/include/arm-linux-gnueabihf/curl /usr/include/
+    fi
+
+    ulimit -v unlimited
+
+    if [ `grep -L "/lib"    '/etc/ld.so.conf'` ]; then
+        echo "/lib" >> /etc/ld.so.conf
+    fi
+
+    if [ `grep -L '/usr/lib'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/lib" >> /etc/ld.so.conf
+    fi
+
+    if [ -d "/usr/lib64" ] && [ `grep -L '/usr/lib64'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/lib64" >> /etc/ld.so.conf
+    fi
+
+    if [ `grep -L '/usr/local/lib'    '/etc/ld.so.conf'` ]; then
+        echo "/usr/local/lib" >> /etc/ld.so.conf
+    fi
+
+    if [ -d /usr/include/x86_64-linux-gnu/curl ]; then
+        ln -sf /usr/include/x86_64-linux-gnu/curl /usr/include/
+    elif [ -d /usr/include/i386-linux-gnu/curl ]; then
+        ln -sf /usr/include/i386-linux-gnu/curl /usr/include/
+    fi
+
+    if [ -d /usr/include/arm-linux-gnueabihf/curl ]; then
+        ln -sf /usr/include/arm-linux-gnueabihf/curl /usr/include/
+    fi
+
+    if [ -d /usr/include/aarch64-linux-gnu/curl ]; then
+        ln -sf /usr/include/aarch64-linux-gnu/curl /usr/include/
+    fi
+
+    ldconfig
+
+    cat >>/etc/security/limits.conf<<eof
+* soft nproc 65535
+* hard nproc 65535
+* soft nofile 65535
+* hard nofile 65535
+eof
+
+    echo "fs.file-max=65535" >> /etc/sysctl.conf
+}
+
+Remove_Error_Libcurl()
+{
+    if [ -s /usr/local/lib/libcurl.so ]; then
+        rm -f /usr/local/lib/libcurl*
+    fi
 }
 

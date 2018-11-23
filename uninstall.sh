@@ -74,7 +74,7 @@ Uninstall_LNMJ()
 
     rm -rf ${App_Home}/java
     rm -rf /etc/profile.d/java.sh
-    # Remove_StartUp nginx
+    
     # Remove_StartUp php-fpm
     # if [ ${DB_Name} != "None" ]; then
     #     Remove_StartUp ${DB_Name}
@@ -87,7 +87,9 @@ Uninstall_LNMJ()
     # fi
     # chattr -i ${Default_Website_Dir}/.user.ini
     echo "Deleting LNMJ files..."
-    # rm -rf /usr/local/nginx
+    Remove_StartUp nginx
+    RM_Safe ${App_Home}/nginx
+    RM_Safe /etc/init.d/nginx
     # rm -rf /usr/local/php
     # rm -rf /usr/local/zend
 
@@ -141,6 +143,8 @@ Uninstall_LNMJ()
 # /usr/local/zend
 # /etc/my.cnf
         cat << EOF
+${App_Home}/nginx
+/etc/init.d/nginx
 ${App_Home}/java
 /etc/profile.d/java.sh
 /bin/lnmj

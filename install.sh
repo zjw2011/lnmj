@@ -23,7 +23,9 @@ LNMJ_Ver='0.0.1'
 . include/init.sh
 . include/safe.sh
 . include/jdk.sh
+. include/nginx.sh
 . include/end.sh
+. include/only.sh
 
 Get_Dist_Name
 
@@ -79,6 +81,12 @@ Init_Install()
         Deb_RemoveAMP
         Deb_Dependent
     fi
+    if [ "$PM" = "yum" ]; then
+        CentOS_Lib_Opt
+    elif [ "$PM" = "apt" ]; then
+        Deb_Lib_Opt
+        # Deb_Check_MySQL
+    fi
     Disable_Selinux
     Check_Download
 }
@@ -99,6 +107,9 @@ case "${Stack}" in
     lnmj)
         Dispaly_Selection
         LNMJ_Stack 2>&1 | tee /root/lnmj-install.log
+        ;;
+    nginx)
+        Install_Only_Nginx 2>&1 | tee /root/nginx-install.log
         ;;
     *)
         Echo_Red "Usage: $0 {lnmj}"
