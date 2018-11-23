@@ -16,6 +16,11 @@ else
     Stack=$1
 fi
 
+if [ ! -s /usr/bin/python ]; then
+    Echo_Red "Please install python!"
+    exit 1
+fi
+
 LNMJ_Ver='0.0.1'
 
 . lnmj.conf
@@ -24,6 +29,7 @@ LNMJ_Ver='0.0.1'
 . include/safe.sh
 . include/jdk.sh
 . include/nginx.sh
+. include/openresty.sh
 . include/end.sh
 . include/only.sh
 
@@ -111,8 +117,11 @@ case "${Stack}" in
     nginx)
         Install_Only_Nginx 2>&1 | tee /root/nginx-install.log
         ;;
+    openresty)
+        Install_Only_Openresty 2>&1 | tee /root/openresty-install.log
+        ;;
     *)
-        Echo_Red "Usage: $0 {lnmj}"
+        Echo_Red "Usage: $0 {lnmj|nginx|openresty}"
         ;;
 esac
 

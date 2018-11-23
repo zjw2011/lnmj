@@ -19,20 +19,62 @@ echo "+-------------------------------------------+"
 arg1=$1
 arg2=$2
 
+lnmj_start()
+{
+    echo "Starting LNMJ..."
+    /etc/init.d/nginx start
+    # /etc/init.d/mysql start
+    # /etc/init.d/php-fpm start
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} start
+    #     fi
+    # done
+}
+
+lnmp_stop()
+{
+    echo "Stoping LNMJ..."
+    /etc/init.d/nginx stop
+    # /etc/init.d/mysql stop
+    # /etc/init.d/php-fpm stop
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} stop
+    #     fi
+    # done
+}
+
+lnmj_reload()
+{
+    echo "Reload LNMJ..."
+    /etc/init.d/nginx reload
+    # /etc/init.d/mysql reload
+    # /etc/init.d/php-fpm reload
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} reload
+    #     fi
+    # done
+}
+
 lnmj_kill()
 {
     # echo "Kill nginx,php-fpm,mysql process..."
-    # killall nginx
+    echo "Kill nginx process..."
+    killall nginx
     # killall mysqld
     # killall php-fpm
     # killall php-cgi
     echo "done."
 }
 
-lnmj_status()
+lnmp_status()
 {
-	echo 'TODO'
-    # /etc/init.d/nginx status
+    /etc/init.d/nginx status
     # if [ -f $PHPFPMPIDFILE ]; then
     #     echo "php-fpm is runing!"
     # else
@@ -41,24 +83,19 @@ lnmj_status()
     # /etc/init.d/mysql status
 }
 
-lnmj_stop()
-{
-	echo 'TODO'
-}
-
 case "${arg1}" in
     start)
-        lnmp_start
+        lnmj_start
         ;;
     stop)
         lnmj_stop
         ;;
     restart)
-        lnmp_stop
-        lnmp_start
+        lnmj_stop
+        lnmj_start
         ;;
     reload)
-        lnmp_reload
+        lnmj_reload
         ;;
     kill)
         lnmj_kill

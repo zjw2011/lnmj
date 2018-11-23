@@ -14,6 +14,8 @@ Stack=$1
 LNMP_Ver='0.0.1'
 
 . lnmj.conf
+. include/version.sh
+. include/safe.sh
 . include/main.sh
 
 shopt -s extglob
@@ -66,14 +68,16 @@ Sleep_Sec()
 Uninstall_LNMJ()
 {
     echo "Stoping LNMJ..."
-    lnmj kill
-    lnmj stop
+    if [ -s /bin/lnmj ]; then 
+        lnmj kill
+        lnmj stop
+    fi
 
     echo "Deleting iptables rules..."
     Dele_Iptables_Rules
 
-    rm -rf ${App_Home}/java
-    rm -rf /etc/profile.d/java.sh
+    RM_Safe ${App_Home}/java
+    RM_Safe /etc/profile.d/java.sh
     
     # Remove_StartUp php-fpm
     # if [ ${DB_Name} != "None" ]; then
@@ -85,11 +89,23 @@ Uninstall_LNMJ()
     #         mv ${MariaDB_Data_Dir} /root/databases_backup_$(date +"%Y%m%d%H%M%S")
     #     fi
     # fi
-    # chattr -i ${Default_Website_Dir}/.user.ini
+    if [ -s ${Default_Website_Dir}/.user.ini ]; then
+        chattr -i ${Default_Website_Dir}/.user.ini
+    fi
     echo "Deleting LNMJ files..."
     Remove_StartUp nginx
     RM_Safe ${App_Home}/nginx
     RM_Safe /etc/init.d/nginx
+    if [ "${Enable_Nginx_Lua}" = 'y' ]; then
+        RM_Safe /etc/ld.so.conf.d/luajit.conf
+        RM_Safe /etc/profile.d/luajit.sh
+        if [ "${Is_64bit}" = "y" ]; then
+            RM_Safe /lib64/libluajit-5.1.so.2
+        else
+            RM_Safe /usr/lib/libluajit-5.1.so.2
+        fi
+    fi
+    RM_Safe ${App_Home}/openresty
     # rm -rf /usr/local/php
     # rm -rf /usr/local/zend
 
@@ -145,6 +161,10 @@ Uninstall_LNMJ()
         cat << EOF
 ${App_Home}/nginx
 /etc/init.d/nginx
+/etc/ld.so.conf.d/luajit.conf
+/etc/profile.d/luajit.sh
+/lib64/libluajit-5.1.so.2
+/usr/lib/libluajit-5.1.so.2
 ${App_Home}/java
 /etc/profile.d/java.sh
 /bin/lnmj

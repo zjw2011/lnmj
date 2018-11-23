@@ -7,4 +7,5 @@ Luajit_Ver='LuaJIT-2.0.5'
 LuaNginxModule='lua-nginx-module-0.10.11'
 NgxDevelKit='ngx_devel_kit-0.3.0'
 Nginx_Ver='nginx-1.14.1'
+Openresty_Ver='openresty-1.13.6.2'
 

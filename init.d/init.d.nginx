@@ -19,9 +19,9 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=nginx
-NGINX_BIN=/usr/local/nginx/sbin/$NAME
-CONFIGFILE=/usr/local/nginx/conf/$NAME.conf
-PIDFILE=/usr/local/nginx/logs/$NAME.pid
+NGINX_BIN={{App_Home}}/nginx/sbin/$NAME
+CONFIGFILE={{App_Home}}/nginx/conf/$NAME.conf
+PIDFILE={{App_Home}}/nginx/logs/$NAME.pid
 if [ -s /bin/ss ]; then
     StatBin=/bin/ss
 else
@@ -38,7 +38,7 @@ case "$1" in
             exit 1
         fi
 
-        $NGINX_BIN -c $CONFIGFILE
+        $NGINX_BIN -p {{App_Home}}/nginx -c $CONFIGFILE 
 
         if [ "$?" != 0 ] ; then
             echo " failed"

@@ -87,7 +87,7 @@ Install_Nginx()
     #     \cp conf/nginx.conf ${App_Home}/nginx/conf/nginx.conf
     # fi
     \cp conf/nginx.conf ${App_Home}/nginx/conf/nginx.conf
-    
+
     # \cp -ra conf/rewrite ${App_Home}/nginx/conf/
     # \cp conf/pathinfo.conf ${App_Home}/nginx/conf/pathinfo.conf
     # \cp conf/enable-php.conf ${App_Home}/nginx/conf/enable-php.conf
@@ -108,10 +108,11 @@ Install_Nginx()
     mkdir ${App_Home}/nginx/conf/vhost
 
     if [ "${Default_Website_Dir}" != "/home/wwwroot/default" ]; then
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/nginx/conf/nginx.conf
+        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" ${App_Home}/nginx/conf/nginx.conf
     fi
+    sed -i "s#{{App_Home}}#${App_Home}#g" ${App_Home}/nginx/conf/nginx.conf
 
-    if [ "${Stack}" = "lnmp" ]; then
+    if [ "${Stack}" = "lnmj" ]; then
         cat >${Default_Website_Dir}/.user.ini<<EOF
 open_basedir=${Default_Website_Dir}:/tmp/:/proc/
 EOF
@@ -122,7 +123,9 @@ fastcgi_param PHP_ADMIN_VALUE "open_basedir=\$document_root/:/tmp/:/proc/";
 EOF
     fi
 
+
     \cp init.d/init.d.nginx /etc/init.d/nginx
+    sed -i "s#{{App_Home}}#${App_Home}#g" /etc/init.d/nginx
     chmod +x /etc/init.d/nginx
 
     if [ "${SelectMalloc}" = "3" ]; then

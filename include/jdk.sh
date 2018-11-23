@@ -10,7 +10,7 @@ Get_TarName() {
 		Echo_Red "[${JDK_Ver}] is not support!"
         exit 1
 	fi
-	local JAVA_Sequence=`echo ${JDK_Ver} | cut -d'_' -f2`
+	local JAVA_Sequence=`echo ${JDK_Ver} | awk -F'_' '{print $2}'`
 	JDK_Tar_Name="jdk-${JAVA_Version}u${JAVA_Sequence}-linux"
 	# if [ "${JDK_Ver}" = "jdk1.8.0_191" ]; then
 	# 	JDK_Tar_Name="jdk-8u191-linux"
@@ -26,6 +26,7 @@ Get_TarName() {
 
 Install_JDK_Policy() {
 	mkdir -p ${JAVA_HOME}/lib/security
+	cd ${cur_dir}/src
 	if [ "${JAVA_Version}" = "8" ]; then
 	    \cp -rf UnlimitedJCEPolicyJDK8/local_policy.jar ${JAVA_HOME}/lib/security/
 	    \cp -rf UnlimitedJCEPolicyJDK8/local_policy.jar ${JAVA_HOME}/jre/lib/security/

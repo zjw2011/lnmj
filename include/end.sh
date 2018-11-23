@@ -4,6 +4,7 @@ Add_Iptables_Rules()
 {
     #add iptables firewall rules
     if [ -s /usr/sbin/firewalld ]; then
+        # firewall-cmd --permanent --zone=public --add-interface=lo
     	firewall-cmd --permanent --zone=public --add-port=22/tcp
     	firewall-cmd --permanent --zone=public --add-port=80/tcp
     	firewall-cmd --permanent --zone=public --add-port=443/tcp
@@ -38,17 +39,6 @@ iptables-restore < /etc/iptables.rules
 EOF
             chmod +x /etc/network/if-pre-up.d/iptables
         fi
-    fi
-}
-
-Check_JDK_Files()
-{
-    isJDK=""
-    if [[ -s ${App_Home}/java/bin/java && -s ${App_Home}/java/jre/bin/java ]]; then
-        Echo_Green "JDK: OK"
-        isJDK="ok"
-    else
-        Echo_Red "Error: JDK install failed."
     fi
 }
 
@@ -155,6 +145,43 @@ Check_LNMJ_Install()
         Print_Sucess_Info
     else
         Print_Failed_Info
+    fi
+}
+
+Check_JDK_Files()
+{
+    isJDK=""
+    if [[ -s ${App_Home}/java/bin/java && -s ${App_Home}/java/jre/bin/java ]]; then
+        Echo_Green "JDK: OK"
+        isJDK="ok"
+    else
+        Echo_Red "Error: JDK install failed."
+    fi
+}
+
+Check_Nginx_Files()
+{
+    isNginx=""
+    echo "============================== Check install =============================="
+    echo "Checking ..."
+    if [[ -s ${App_Home}/nginx/conf/nginx.conf && -s ${App_Home}/nginx/sbin/nginx ]]; then
+        Echo_Green "Nginx: OK"
+        isNginx="ok"
+    else
+        Echo_Red "Error: Nginx install failed."
+    fi
+}
+
+Check_Openresty_Files()
+{
+    isNginx=""
+    echo "============================== Check install =============================="
+    echo "Checking ..."
+    if [[ -s ${App_Home}/openresty/nginx/conf/nginx.conf && -s ${App_Home}/openresty/nginx/sbin/nginx ]]; then
+        Echo_Green "Openresty: OK"
+        isOpenresty="ok"
+    else
+        Echo_Red "Error: Openresty install failed."
     fi
 }
 

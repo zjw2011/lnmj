@@ -26,6 +26,8 @@ Kill_PM()
 
 Press_Install()
 {
+    . include/version.sh
+    Check_Remove_Files
     if [ -z ${LNMJ_Auto} ]; then
         echo ""
         Echo_Green "Press any key to install...or Press Ctrl+c to cancel"
@@ -34,12 +36,13 @@ Press_Install()
         dd count=1 2>/dev/null
         stty ${OLDCONFIG}
     fi
-    . include/version.sh
     Kill_PM
 }
 
 Press_Start()
 {
+    . include/version.sh
+    Check_Remove_Files
     echo ""
     Echo_Green "Press any key to start...or Press Ctrl+c to cancel"
     OLDCONFIG=`stty -g`
