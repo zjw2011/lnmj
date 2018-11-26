@@ -1,0 +1,154 @@
+#!/bin/bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+
+# Check if user is root
+if [ $(id -u) != "0" ]; then
+    echo "Error: You must be root to run this script!"
+    exit 1
+fi
+
+echo "+-------------------------------------------+"
+echo "|    Manager for LNMJ, Written by jiawei    |"
+echo "+-------------------------------------------+"
+echo "|    https://github.com/zjw2011/lnmj             |"
+echo "+-------------------------------------------+"
+
+# PHPFPMPIDFILE=/usr/local/php/var/run/php-fpm.pid
+
+arg1=$1
+arg2=$2
+
+lnmj_start()
+{
+    echo "Starting LNMJ..."
+    /etc/init.d/nginx start
+    # /etc/init.d/mysql start
+    # /etc/init.d/php-fpm start
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} start
+    #     fi
+    # done
+}
+
+lnmp_stop()
+{
+    echo "Stoping LNMJ..."
+    /etc/init.d/nginx stop
+    # /etc/init.d/mysql stop
+    # /etc/init.d/php-fpm stop
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} stop
+    #     fi
+    # done
+}
+
+lnmj_reload()
+{
+    echo "Reload LNMJ..."
+    /etc/init.d/nginx reload
+    # /etc/init.d/mysql reload
+    # /etc/init.d/php-fpm reload
+    # for mphpfpm in /etc/init.d/php-fpm[5,7].[0-9]
+    # do
+    #     if [ -f ${mphpfpm} ]; then
+    #         ${mphpfpm} reload
+    #     fi
+    # done
+}
+
+lnmj_kill()
+{
+    # echo "Kill nginx,php-fpm,mysql process..."
+    echo "Kill nginx process..."
+    killall nginx
+    # killall mysqld
+    # killall php-fpm
+    # killall php-cgi
+    echo "done."
+}
+
+lnmp_status()
+{
+    /etc/init.d/nginx status
+    # if [ -f $PHPFPMPIDFILE ]; then
+    #     echo "php-fpm is runing!"
+    # else
+    #     echo "php-fpm is stop!"
+    # fi
+    # /etc/init.d/mysql status
+}
+
+case "${arg1}" in
+    start)
+        lnmj_start
+        ;;
+    stop)
+        lnmj_stop
+        ;;
+    restart)
+        lnmj_stop
+        lnmj_start
+        ;;
+    reload)
+        lnmj_reload
+        ;;
+    kill)
+        lnmj_kill
+        ;;
+    status)
+        lnmj_status
+        ;;
+    nginx)
+        /etc/init.d/nginx ${arg2}
+        ;;
+    mysql)
+        /etc/init.d/mysql ${arg2}
+        ;;
+    mariadb)
+        /etc/init.d/mariadb ${arg2}
+        ;;
+    php-fpm)
+        /etc/init.d/php-fpm ${arg2}
+        ;;
+    pureftpd)
+        /etc/init.d/pureftpd ${arg2}
+        ;;
+    httpd)
+        /etc/init.d/httpd ${arg2}
+        ;;
+    vhost)
+        Function_Vhost ${arg2}
+        ;;
+    database)
+        Verify_DB_Password
+        Function_Database ${arg2}
+        TempMycnf_Clean
+        ;;
+    ftp)
+        Check_Pureftpd
+        Function_Ftp ${arg2}
+        ;;
+    ssl)
+        info="n"
+        Add_SSL_Menu
+        Add_SSL
+        ;;
+    dnsssl|dns)
+        Add_Dns_SSL ${arg2}
+        ;;
+    *)
+        echo "Usage: lnmj {start|stop|reload|restart|kill|status}"
+        echo "Usage: lnmj {nginx|mysql|mariadb|php-fpm|pureftpd} {start|stop|reload|restart|kill|status}"
+        echo "Usage: lnmj vhost {add|list|del}"
+        echo "Usage: lnmj database {add|list|edit|del}"
+        echo "Usage: lnmj ftp {add|list|edit|del|show}"
+        echo "Usage: lnmj ssl add"
+        echo "Usage: lnmj {dnsssl|dns} {cx|ali|cf|dp|he|gd|aws}"
+        ;;
+esac
+exit
